@@ -4,7 +4,7 @@
   
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NLP Class Project | Fall 2024 CSCI 5541 | University of Minnesota</title>
+  <title>NLP Class Project | Spring 2026 CSCI 5541 | University of Minnesota</title>
 
   <link rel="stylesheet" href="./files/bulma.min.css" />
 
@@ -20,9 +20,9 @@
 <body>
   <div>
     <div class="wrapper">
-      <h1 style="font-family: &#39;Lato&#39;, sans-serif;">Your Title Here</h1>
-      <h4 style="font-family: &#39;Lato&#39;, sans-serif; ">Fall 2024 CSCI 5541 NLP: Class Project - University of Minnesota</h4>
-      <h4 style="font-family: &#39;Lato&#39;, sans-serif; ">Team Name</h4>
+      <h1 style="font-family: &#39;Lato&#39;, sans-serif;">Multi-Dialect Vietnamese TTS</h1>
+      <h4 style="font-family: &#39;Lato&#39;, sans-serif; ">Spring 2026 CSCI 5541 NLP: Class Project - University of Minnesota</h4>
+      <h4 style="font-family: &#39;Lato&#39;, sans-serif; ">Lower Expectations</h4>
 
       <div class="authors-wrapper">
         
@@ -35,7 +35,7 @@
           </div>
           <p>
                         
-              Member 1
+              Cheston Opsasnick
             
           </p>
         </div>
@@ -48,7 +48,7 @@
           </div>
           <p>
             
-            Member 2
+            Vy Bui-Nguyen
             
           </p>
         </div>
@@ -60,7 +60,7 @@
             
           </div>
           <p>
-              Member 3
+              Annalise Xiao
           </p>
         </div>
         
@@ -71,7 +71,7 @@
             
           </div>
           <p>
-            Member 4
+            Quenton Ni
           </p>
         </div>
         
@@ -117,13 +117,6 @@
   </div>
 
 
-
-
-
-  
-  
-
-
   <div class="wrapper">
     <hr>
     
@@ -152,21 +145,30 @@
 <b>What did you try to do? What problem did you try to solve? Articulate your objectives using absolutely no jargon.</b>
 </p>
 <p>
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Despite rapid advancements in Text-to-Speech (TTS) technology, Vietnamese still remains underrepresented as a low-resource language. This disparity is particularly evident when attempting to synthesize diverse regional dialects. 
+The strict lexical tones and significant phonetic shifts between Northern, Central, and Southern Vietnamese present complex acoustic challenges that traditional synthesis pipelines and English-centric models struggle to resolve without dedicated, dialect-aware fine tuning.
+To address this gap, this project proposes a multi-dialect Vietnamese TTS system by fine-tuning the F5-TTS architecture. 
 </p>
 
 <p>
 <b>How is it done today, and what are the limits of current practice?</b>
 </p>
 <p>
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+In recent years, TTS systems have rapidly improved in their naturalness and intelligibility with paradigms like continuous flow matching and audio language models.  However, most of these models are based on popular, high resource languages such as English and Mandarin.
+Previous work has focused on dialect identification and speech recognition for Vietnamese and most existing Vietnamese speech datasets were designed for Automatic Speech Recognition (ASR) and Dialect Identification (DI).
+However, less attention has been given to generating various dialects with TTS models. For this project, we investigated whether a TTS model trained on northern, central, and southern Vietnamese dialects can accurately generate dialect-specific acoustic characteristics. 
 <p>
 
 <p>
 <b>Who cares? If you are successful, what difference will it make?</b>
 </p>
 <p>
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+There has been little investigation into how multi-dialect training affects TTS systems. It is unclear whether a TTS model trained on multiple Vietnamese dialects can preserve dialect-specific pronunciation patterns or whether the system tends to produce a more standardized or dominant dialect. 
+This gap highlights the need to examine dialect preservation in generative TTS models. This also raises the question: "When a TTS model is trained on speech data from multiple Vietnamese dialects, can it preserve dialect-specific characteristics, or does it converge toward a dominant dialect during generation?"
+</p>
+<p>
+If successful, this work could have meaningful implications beyond Vietnamese. Many languages beyond Vietnamese are low-resource and dialect-rich, but remain underserved by modern speech technology. A dialect-aware TTS system for Vietnamese could serve as a blueprint for extending similar approaches to other low-resource languages.
+More immediate benefits include improving accessibility in applications like screen readers, navigation tools, and voice assistants for Vietnamese speakers from Central and Southern regions who are underrepresented in existing speech tools.
 </p>
 
 <hr>
@@ -178,7 +180,15 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 </p>
 
 <p>
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+The F5-TTS architecture was utilized for the multi-dialect Vietnamese TTS system.
+The planned approach is detailed below.
+  <ul>
+    <li>Extract speech samples labeled as Northern, Central, and Southern dialects from the Vietnamese Multi-Dialect (ViMD) dataset.</li>
+    <li>Train a F5-TTS model on pooled data from all three dialects without providing dialect labels as baseline model.</li>
+    <li>Finetune 3 models to include a learned dialect embedding corresponding to the three dialect classes.</li>
+    <li>Test each model’s accuracy on each dialect.</li>
+    <li>Compare intelligibility and dialect preservation between the three models.</li>
+  </ul> 
 </p>
 
 <p>
@@ -186,7 +196,8 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 </p>
 
 <p>
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+One major challenge we anticipated was the scale of the ViMD dataset, which contains over 102 hours of speech data across 63 provincial dialects. We were concerned that processing and training on the full dataset would exceed the compute available on our local devices.
+We considered using a subset of the data, focusing on samples from the three main regional dialects (Northern, Central, and Southern) to make training more feasible while still preserving dialect variation.
 </p>
 
 <hr>
@@ -196,8 +207,13 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 <b>How did you measure success? What experiments were used? What were the results, both quantitative and qualitative? Did you succeed? Did you fail? Why?</b>
 </p>
 <p>
-Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+The following metrics were used to evaluate the TTS system.
+<ul>
+  <li>Word Error Rate (WER): used to evaluate the accuracy of speech recognition</li>
+  <li>F1-macro</li>
+</ul>
 </p>
+
 <table>
   <thead>
     <tr>
@@ -233,7 +249,7 @@ Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed 
 
 
 
-<h2 id="conclusion">Conclustion and Future Work</h2>
+<h2 id="conclusion">Conclusion and Future Work</h2>
 <p>
 
   How easily are your results able to be reproduced by others?
