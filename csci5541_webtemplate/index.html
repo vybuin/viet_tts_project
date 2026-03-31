@@ -93,7 +93,7 @@
           </span>
           <span class="link-block">
             <a
-              href=""
+              href="https://github.com/vybuin/viet_tts_project"
               target="_blank"
               class="external-link button is-normal is-rounded is-dark is-outlined"
             >
@@ -147,7 +147,7 @@
 <p>
 Despite rapid advancements in Text-to-Speech (TTS) technology, Vietnamese still remains underrepresented as a low-resource language. This disparity is particularly evident when attempting to synthesize diverse regional dialects. 
 The strict lexical tones and significant phonetic shifts between Northern, Central, and Southern Vietnamese present complex acoustic challenges that traditional synthesis pipelines and English-centric models struggle to resolve without dedicated, dialect-aware fine tuning.
-To address this gap, this project proposes a multi-dialect Vietnamese TTS system by fine-tuning the F5-TTS architecture. 
+To address this gap, this project proposes a multi-dialect Vietnamese TTS system by fine-tuning the Fairytaler that Fakes Fluent and Faithful speech with Flow Matching (F5-TTS) architecture. 
 </p>
 
 <p>
@@ -173,6 +173,15 @@ More immediate benefits include improving accessibility in applications like scr
 
 <hr>
 
+<h2 id="task_def">Task Definition and Description</h2>
+
+<p>
+Vy Bui-Nguyen will work on parsing and cleaning data. Quenton Ni will work on fine tuning the F5-TTS model for the task. 
+Annalise Xiao will work on evaluating the model using predefined metrics. Cheston Opsasnick will work on documenting progress and generating the final report.
+</p>
+
+<hr>
+
 <h2 id="approach">Approach</h2>
 
 <p>
@@ -180,15 +189,15 @@ More immediate benefits include improving accessibility in applications like scr
 </p>
 
 <p>
-The F5-TTS architecture was utilized for the multi-dialect Vietnamese TTS system.
-The planned approach is detailed below.
-  <ul>
-    <li>Extract speech samples labeled as Northern, Central, and Southern dialects from the Vietnamese Multi-Dialect (ViMD) dataset.</li>
-    <li>Train a F5-TTS model on pooled data from all three dialects without providing dialect labels as baseline model.</li>
-    <li>Finetune 3 models to include a learned dialect embedding corresponding to the three dialect classes.</li>
-    <li>Test each model’s accuracy on each dialect.</li>
-    <li>Compare intelligibility and dialect preservation between the three models.</li>
-  </ul> 
+The F5-TTS architecture was utilized for the multi-dialect Vietnamese TTS system. Our approach is detailed below.
+First, speech samples labeled as Northern, Central, and Southern dialects were extracted from the Vietnamese Multi-Dialect (ViMD) dataset. One hour was extracted for each dialect, totaling to three hours across three dialects.
+The following columns were extracted: audio_path, text, duration_sec, region, speaker_id, split, filename. An 80-10-10 split was used to divide the dataset into training, validation, and testing respectively.
+</p>
+
+<p>
+Next, we trained the model on pooled data from all three dialects without providing dialect labels as baseline model.
+Then, we finetuned the model to include a learned dialect embedding corresponding to the three dialect classes.
+Lastly, we tested the model’s accuracy on each dialect. We compared intelligibility and dialect preservation for the model.
 </p>
 
 <p>
@@ -197,7 +206,8 @@ The planned approach is detailed below.
 
 <p>
 One major challenge we anticipated was the scale of the ViMD dataset, which contains over 102 hours of speech data across 63 provincial dialects. We were concerned that processing and training on the full dataset would exceed the compute available on our local devices.
-We considered using a subset of the data, focusing on samples from the three main regional dialects (Northern, Central, and Southern) to make training more feasible while still preserving dialect variation.
+We considered using a subset of the data, focusing on samples from the three main regional dialects (Northern, Central, and Southern) to make training more feasible while still preserving dialect variation. 
+We also considered utilizing Low-Rank Adaption (LoRA) to adapt the F5-TTS model to new tasks by freezing the original weights and injecting small, trainable low-rank matrices.
 </p>
 
 <hr>
@@ -206,11 +216,11 @@ We considered using a subset of the data, focusing on samples from the three mai
 <p>
 <b>How did you measure success? What experiments were used? What were the results, both quantitative and qualitative? Did you succeed? Did you fail? Why?</b>
 </p>
+
 <p>
-The following metrics were used to evaluate the TTS system.
+The following metrics were used to evaluate the TTS model.
 <ul>
   <li>Word Error Rate (WER): used to evaluate the accuracy of speech recognition</li>
-  <li>F1-macro</li>
 </ul>
 </p>
 
@@ -247,15 +257,22 @@ The following metrics were used to evaluate the TTS system.
 
 <hr>
 
+<h2 id="plan">Plan for the Rest of the Semester</h2>
+<p>
+  We plan on addressing mentor feedback from the midterm office hour by April 9. We will to continue to fine-tune the F5-TTS model by April 21.
+  We will finish metric evaluation by April 25. We will work on creating and printing the poster for the poster presentation by April 28.
+  We will work on filling in and finishing the final report by April 30.
+</p>
 
+<hr>
 
 <h2 id="conclusion">Conclusion and Future Work</h2>
 <p>
-
   How easily are your results able to be reproduced by others?
   Did your dataset or annotation affect other people's choice of research or development projects to undertake?
   Does your work have potential harm or risk to our society? What kinds? If so, how can you address them?
-  What limitations does your model have? How can you extend your work for future research?</p>
+  What limitations does your model have? How can you extend your work for future research?
+</p>
 
 
 <hr>
