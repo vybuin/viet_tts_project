@@ -1,0 +1,7 @@
+datasets
+soundfile
+pandas
+tqdm
+numpy
+torch
+transformers
