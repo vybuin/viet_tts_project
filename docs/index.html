@@ -122,20 +122,29 @@
     
     <h2 id="abstract">Abstract</h2>
 
-<p>One or two sentences on the motivation behind the problem you are solving. One or two sentences describing the approach you took. One or two sentences on the main result you obtained.</p>
+<p>This project plans on creating a multi-dialect Text-to-Speech (TTS) System for Vietnamese. This will be achieved by utilizing a continuous flow-matching approach on a dialect annotated dataset in order to achieve a higher degree
+of naturalness and intelligibility compared to traditional pipelines. To evaluate the framework’s performance, the project will measure overall speech intelligibility using Word Error
+Rate(WER) and assess dialect accuracy using a dedicated dialect classifier to verify if the synthesized speech matches the target prompt. The expected outcome is a speech synthesis system capable of generating distinct Vietnamese
+dialects using minimal reference audio.</p>
 
 <hr>
 
-<h2 id="teaser">Teaser Figure</h2>
+<h2 id="teaser">Pipeline Figure</h2>
 
-<p>A figure that conveys the main idea behind the project or the main application being addressed. This figure is from <a href="https://arxiv.org/pdf/2210.07469">StyLEx</a>.</p>
+<p>This figure illustrates the overall pipeline for building and evaluating a Vietnamese dialect-aware text-to-speech (TTS) system.</p>
 
 <p class="sys-img"><img src="./files/teaser.png" alt="imgname"></p>
 
 
-<h3 id="the-timeline-and-the-highlights">Any subsection</h3>
+<h3 id="the-timeline-and-the-highlights">Pipeline Details</h3>
 
-<p>If you need to explain more about your figure</p>
+<p>The workflow begins with collecting raw speech data from existing online sources, which are then processed through a data parsing and cleaning stage. During this stage, audio files are standardized (e.g., sampling rate normalization), transcripts are cleaned and aligned, and low-quality or inconsistent samples are filtered out to ensure dataset reliability.
+
+The cleaned dataset is first used to generate outputs from a baseline pre-trained TTS model, providing a reference point for performance comparison. The primary modeling stage involves fine-tuning the F5-TTS model on the curated dataset to better capture dialect-specific phonetic and linguistic variations across Vietnamese regions.
+
+Following training, the model is evaluated using both quantitative and qualitative metrics. Objective measures such as Word Error Rate (WER) are used to assess transcription accuracy, while subjective evaluations such as Mean Opinion Score (MOS) and qualitative error analysis are used to evaluate naturalness and speaker consistency. These evaluation results inform iterative improvements, creating a feedback loop that guides further model refinement.
+
+Finally, the pipeline concludes with documentation and reporting, where experimental results, model performance comparisons, and key insights are consolidated into a comprehensive report. Each stage of the pipeline is collaboratively developed, with responsibilities distributed across data processing, model training, evaluation, and documentation to ensure a modular and reproducible system design.</p>
 
 <hr>
 
@@ -191,7 +200,9 @@ Annalise Xiao will work on evaluating the model using predefined metrics. Chesto
 <p>
 The F5-TTS architecture was utilized for the multi-dialect Vietnamese TTS system. Our approach is detailed below.
 First, speech samples labeled as Northern, Central, and Southern dialects were extracted from the Vietnamese Multi-Dialect (ViMD) dataset. One hour was extracted for each dialect, totaling to three hours across three dialects.
-The following columns were extracted: audio_path, text, duration_sec, region, speaker_id, split, filename. An 80-10-10 split was used to divide the dataset into training, validation, and testing respectively. The number of utterances were capped to 8 per speaker.
+The following columns were extracted: audio_path, text, duration_sec, region, speaker_id, split, filename. An 80-10-10 split was used to divide the dataset into training, validation, and testing respectively. Rather than imposing a fixed cap of 8 utterances per speaker, 
+we allow all available utterances to be included in the dataset. This approach preserves the full variability of each speaker’s speech patterns, providing the model with richer phonetic and prosodic information. By leveraging more data per speaker, the model can better 
+learn dialect-specific characteristics and improve overall synthesis quality and robustness.
 </p>
 
 <p>
