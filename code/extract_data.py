@@ -16,13 +16,15 @@ import io
 import json
 import re
 from pathlib import Path
- 
+
+import librosa
 import soundfile as sf
 from datasets import load_dataset
- 
- 
+
+
 REGIONS = ["North", "Central", "South"]
 SPLITS = ["train", "valid", "test"]
+TARGET_SAMPLE_RATE = 24_000
  
 SPLIT_RATIOS = {
     "train": 0.8,
@@ -106,8 +108,27 @@ def save_audio(audio_info: dict, output_path: Path):
         audio_array, sample_rate = sf.read(source_path)
     else:
         raise ValueError("audio source is missing both bytes and path")
- 
-    sf.write(output_path, audio_array, sample_rate)
+
+    if sample_rate != TARGET_SAMPLE_RATE:
+        audio_array = librosa.resample(
+            y=audio_array.T if getattr(audio_array, "ndim", 1) > 1 else audio_array,
+            orig_sr=sample_rate,
+            target_sr=TARGET_SAMPLE_RATE,
+        )
+        if getattr(audio_array, "ndim", 1) > 1:
+            audio_array = audio_array.T
+
+    sf.write(output_path, audio_array, TARGET_SAMPLE_RATE)
+
+
+def build_manifest_rows(rows):
+    return [
+        {
+            "audio_file": row["audio_path"],
+            "text": f"[{row['region']}] {row['text']}",
+        }
+        for row in rows
+    ]
  
  
 def build_targets(hours_per_region: float):
@@ -195,9 +216,9 @@ def main():
     )
     parser.add_argument("--dataset_name", type=str, default="nguyendv02/ViMD_Dataset")
     parser.add_argument("--output_dir", type=str, default="data/vimd_subset")
-    parser.add_argument("--hours_per_region", type=float, default=1.0)
+    parser.add_argument("--hours_per_region", type=float, default=10.0)
     parser.add_argument("--min_duration", type=float, default=3.0)
-    parser.add_argument("--max_duration", type=float, default=25.0)
+    parser.add_argument("--max_duration", type=float, default=15.0)
     args = parser.parse_args()
  
     output_root = Path(args.output_dir)
@@ -220,18 +241,31 @@ def main():
                 print(f"  {split} | {region}: {accepted_sec[split][region]/3600:.2f}h")
         return
  
-    with open(manifest_dir / "manifest.csv", "w", newline="", encoding="utf-8") as f:
+    manifest_rows = build_manifest_rows(rows)
+
+    with open(manifest_dir / "manifest_original.csv", "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
- 
+
+    with open(manifest_dir / "manifest.csv", "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["audio_file", "text"],
+            delimiter="|",
+        )
+        writer.writeheader()
+        writer.writerows(manifest_rows)
+
     with open(manifest_dir / "manifest.jsonl", "w", encoding="utf-8") as f:
         for row in rows:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
- 
+
     print(f"\n[INFO] Done. {len(rows)} samples saved.")
-    print(f"       CSV:   {manifest_dir / 'manifest.csv'}")
+    print(f"       CSV:   {manifest_dir / 'manifest_original.csv'} (original extracted rows)")
+    print(f"       CSV:   {manifest_dir / 'manifest.csv'} (pipe-delimited training format)")
     print(f"       JSONL: {manifest_dir / 'manifest.jsonl'}")
+    print(f"       Audio: resampled to {TARGET_SAMPLE_RATE} Hz")
  
     print("\n[INFO] Accepted duration summary:")
     for split in SPLITS:

@@ -1,5 +1,6 @@
 datasets
 soundfile
+librosa
 pandas
 tqdm
 numpy

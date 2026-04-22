@@ -1,4 +1,4 @@
 .venv/
-code/extract_data.ipynb
+code/
 data/
 .DS_Store
