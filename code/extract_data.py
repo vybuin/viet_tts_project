@@ -31,6 +31,59 @@ SPLIT_RATIOS = {
     "valid": 0.1,
     "test": 0.1,
 }
+
+
+def make_checkpoint_config(dataset_name, hours_per_region, min_dur, max_dur):
+    return {
+        "dataset_name": dataset_name,
+        "hours_per_region": hours_per_region,
+        "min_duration": min_dur,
+        "max_duration": max_dur,
+        "target_sample_rate": TARGET_SAMPLE_RATE,
+        "split_ratios": SPLIT_RATIOS,
+        "regions": REGIONS,
+        "splits": SPLITS,
+    }
+
+
+def empty_progress():
+    return {
+        "accepted_sec": {split: {region: 0.0 for region in REGIONS} for split in SPLITS},
+        "split_positions": {split: -1 for split in SPLITS},
+        "rows": [],
+    }
+
+
+def save_checkpoint(checkpoint_path: Path, config: dict, progress: dict):
+    checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = checkpoint_path.with_suffix(checkpoint_path.suffix + ".tmp")
+    payload = {"config": config, **progress}
+
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+
+    tmp_path.replace(checkpoint_path)
+
+
+def load_checkpoint(checkpoint_path: Path, config: dict):
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"checkpoint not found: {checkpoint_path}")
+
+    with open(checkpoint_path, "r", encoding="utf-8") as f:
+        checkpoint = json.load(f)
+
+    saved_config = checkpoint.get("config")
+    if saved_config != config:
+        raise ValueError(
+            "checkpoint config does not match current arguments. "
+            "Use the original extraction arguments or start without --resume."
+        )
+
+    progress = empty_progress()
+    progress["accepted_sec"].update(checkpoint.get("accepted_sec", {}))
+    progress["split_positions"].update(checkpoint.get("split_positions", {}))
+    progress["rows"] = checkpoint.get("rows", [])
+    return progress
  
  
 def clean_text(text: str) -> str:
@@ -143,69 +196,102 @@ def build_targets(hours_per_region: float):
     }
  
  
-def extract_subset(dataset_name, output_root, hours_per_region, min_dur, max_dur):
+def extract_subset(
+    dataset_name,
+    output_root,
+    hours_per_region,
+    min_dur,
+    max_dur,
+    checkpoint_path=None,
+    checkpoint_interval=200,
+    resume=False,
+):
     ensure_dirs(output_root)
     targets = build_targets(hours_per_region)
+    config = make_checkpoint_config(dataset_name, hours_per_region, min_dur, max_dur)
+
+    if checkpoint_path is None:
+        checkpoint_path = output_root / "manifests" / "extract_checkpoint.json"
+
+    if resume:
+        progress = load_checkpoint(checkpoint_path, config)
+        print(f"[INFO] Resuming from checkpoint: {checkpoint_path}")
+    else:
+        progress = empty_progress()
  
-    accepted_sec = {split: {region: 0.0 for region in REGIONS} for split in SPLITS}
-    rows = []
+    accepted_sec = progress["accepted_sec"]
+    split_positions = progress["split_positions"]
+    rows = progress["rows"]
  
     print("\n[INFO] Targets:")
     for split in SPLITS:
         for region in REGIONS:
             print(f"  {split} | {region}: {targets[split][region]/3600:.2f}h")
  
-    for split_name in SPLITS:
-        print(f"\n[INFO] Streaming split: {split_name}")
+    try:
+        for split_name in SPLITS:
+            print(f"\n[INFO] Streaming split: {split_name}")
  
-        # .decode(False) keeps audio as raw bytes rather than decoding upfront
-        # needed for streaming mode to avoid loading everything into memory
-        ds_stream = load_dataset(dataset_name, split=split_name, streaming=True)
-        ds_stream = ds_stream.decode(False).with_format("python")
+            # .decode(False) keeps audio as raw bytes rather than decoding upfront
+            # needed for streaming mode to avoid loading everything into memory
+            ds_stream = load_dataset(dataset_name, split=split_name, streaming=True)
+            ds_stream = ds_stream.decode(False).with_format("python")
  
-        for idx, row in enumerate(ds_stream):
+            for idx, row in enumerate(ds_stream):
+                if idx <= split_positions[split_name]:
+                    continue
+
+                split_positions[split_name] = idx
  
-            if all(accepted_sec[split_name][r] >= targets[split_name][r] for r in REGIONS):
-                print(f"[INFO] Finished split: {split_name}")
-                break
+                if all(accepted_sec[split_name][r] >= targets[split_name][r] for r in REGIONS):
+                    print(f"[INFO] Finished split: {split_name}")
+                    save_checkpoint(checkpoint_path, config, progress)
+                    break
  
-            if not is_valid_row(row, min_dur, max_dur):
-                continue
+                if not is_valid_row(row, min_dur, max_dur):
+                    continue
  
-            region = row["region"]
-            audio = row["audio"]
+                region = row["region"]
+                audio = row["audio"]
  
-            if accepted_sec[split_name][region] >= targets[split_name][region]:
-                continue
+                if accepted_sec[split_name][region] >= targets[split_name][region]:
+                    continue
  
-            duration = get_duration(audio)
-            if duration is None:
-                continue
+                duration = get_duration(audio)
+                if duration is None:
+                    continue
  
-            text = clean_text(row["text"])
-            filename = row.get("filename", f"{split_name}_{idx}")
-            base = Path(filename).stem
-            wav_path = output_root / "audio" / split_name / region / f"{split_name}_{base}.wav"
+                text = clean_text(row["text"])
+                filename = row.get("filename", f"{split_name}_{idx}")
+                base = Path(filename).stem
+                wav_path = output_root / "audio" / split_name / region / f"{split_name}_{base}.wav"
  
-            try:
-                save_audio(audio, wav_path)
-            except Exception as e:
-                print(f"[WARN] failed to save {filename}: {e}")
-                continue
+                try:
+                    save_audio(audio, wav_path)
+                except Exception as e:
+                    print(f"[WARN] failed to save {filename}: {e}")
+                    continue
  
-            rows.append({
-                "audio_path": str(wav_path.resolve()),
-                "text": text,
-                "duration_sec": round(duration, 3),
-                "region": region,
-                "split": split_name,
-                "filename": filename,
-            })
+                rows.append({
+                    "audio_path": str(wav_path.resolve()),
+                    "text": text,
+                    "duration_sec": round(duration, 3),
+                    "region": region,
+                    "split": split_name,
+                    "filename": filename,
+                })
  
-            accepted_sec[split_name][region] += duration
+                accepted_sec[split_name][region] += duration
  
-            if len(rows) % 200 == 0:
-                print(f"[INFO] {len(rows)} samples accepted so far...")
+                if len(rows) % checkpoint_interval == 0:
+                    print(f"[INFO] {len(rows)} samples accepted so far...")
+                    save_checkpoint(checkpoint_path, config, progress)
+
+            save_checkpoint(checkpoint_path, config, progress)
+    except KeyboardInterrupt:
+        save_checkpoint(checkpoint_path, config, progress)
+        print(f"\n[INFO] Interrupted. Checkpoint saved to: {checkpoint_path}")
+        raise
  
     return rows, accepted_sec
  
@@ -219,10 +305,35 @@ def main():
     parser.add_argument("--hours_per_region", type=float, default=10.0)
     parser.add_argument("--min_duration", type=float, default=3.0)
     parser.add_argument("--max_duration", type=float, default=15.0)
+    parser.add_argument(
+        "--checkpoint_path",
+        type=str,
+        default=None,
+        help="Path for extraction checkpoint JSON. Defaults to output_dir/manifests/extract_checkpoint.json.",
+    )
+    parser.add_argument(
+        "--checkpoint_interval",
+        type=int,
+        default=200,
+        help="Save a checkpoint after this many accepted samples.",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume from an existing checkpoint with matching extraction arguments.",
+    )
     args = parser.parse_args()
+
+    if args.checkpoint_interval < 1:
+        parser.error("--checkpoint_interval must be at least 1")
  
     output_root = Path(args.output_dir)
     manifest_dir = output_root / "manifests"
+    checkpoint_path = (
+        Path(args.checkpoint_path)
+        if args.checkpoint_path is not None
+        else manifest_dir / "extract_checkpoint.json"
+    )
  
     rows, accepted_sec = extract_subset(
         dataset_name=args.dataset_name,
@@ -230,6 +341,9 @@ def main():
         hours_per_region=args.hours_per_region,
         min_dur=args.min_duration,
         max_dur=args.max_duration,
+        checkpoint_path=checkpoint_path,
+        checkpoint_interval=args.checkpoint_interval,
+        resume=args.resume,
     )
  
     if not rows:

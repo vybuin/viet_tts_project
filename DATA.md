@@ -98,3 +98,17 @@ Each row contains:
 ```bash
 pip install requirements.txt
 python code/extract_data.py --hours_per_region 1
+```
+
+### Resume from a checkpoint
+Extraction checkpoints are written automatically to:
+```
+data/vimd_subset/manifests/extract_checkpoint.json
+```
+
+If the stream stops before finishing, rerun the same command with `--resume`:
+```bash
+python code/extract_data.py --hours_per_region 1 --resume
+```
+
+The checkpoint stores accepted rows, accepted duration totals, and the last streamed row index for each split. Resume requires the same extraction arguments so the manifest stays consistent.
