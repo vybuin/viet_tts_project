@@ -165,7 +165,7 @@ More immediate benefits include improving accessibility in applications like scr
 
 <p>
 Vy Bui-Nguyen will work on parsing and cleaning data. Quenton Ni will work on fine tuning the F5-TTS model for the task. 
-Annalise Xiao will work on evaluating the model using predefined metrics. Cheston Opsasnick will work on documenting progress and generating the final report.
+Annalise Xiao will work on evaluating the model using predefined metrics, updating the webpage, and the poster presentation. Cheston Opsasnick will work on documenting progress and generating the final report.
 </p>
 
 <hr>
@@ -177,12 +177,28 @@ Annalise Xiao will work on evaluating the model using predefined metrics. Chesto
 </p>
 
 <p>
-The F5-TTS architecture was utilized for the multi-dialect Vietnamese TTS system. Our approach is detailed below.
-First, speech samples labeled as Northern, Central, and Southern dialects were extracted from the Vietnamese Multi-Dialect (ViMD) dataset. One hour was extracted for each dialect, totaling to three hours across three dialects.
-The following columns were extracted: audio_path, text, duration_sec, region, speaker_id, split, filename. An 80-10-10 split was used to divide the dataset into training, validation, and testing respectively. Rather than imposing a fixed cap of 8 utterances per speaker, 
-we allow all available utterances to be included in the dataset. This approach preserves the full variability of each speaker’s speech patterns, providing the model with richer phonetic and prosodic information. By leveraging more data per speaker, the model can better 
-learn dialect-specific characteristics and improve overall synthesis quality and robustness.
+The F5-TTS architecture was utilized for the multi-dialect Vietnamese TTS system. 
+Speech samples labeled as Northern, Central, and Southern dialects were extracted from the Vietnamese Multi-Dialect (ViMD) dataset, yielding 22,828 total clips (~71 hours of speech). Audio was filtered for valid metadata, converted to mono, resampled to 24 kHz, and constrained to 3 to 17 seconds per clip. 
+Longer recordings up to 30 seconds were segmented using Silero VAD and re-transcribed with PhoWhisper-medium, a Vietnamese ASR model based on OpenAI's Whisper. Clips exceeding 30 seconds were discarded. 
+In total, ~78% of samples were processed through this segmentation pipeline, while the remaining ~22% retained their original ViMD transcripts. The final dataset was split 80/10/10 into training, validation, and test sets, with all available utterances per speaker retained to preserve phonetic and prosodic variability.
 </p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Dialect</th>
+      <th>Samples</th>
+      <th>Total Hours</th>
+      <th>Avg Duration (s)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Northern</td><td>8,007</td><td>25.0</td><td>11.24</td></tr>
+    <tr><td>Central</td><td>7,615</td><td>23.7</td><td>11.21</td></tr>
+    <tr><td>Southern</td><td>7,206</td><td>22.2</td><td>11.10</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>22,828</strong></td><td><strong>70.9</strong></td><td><strong>11.18</strong></td></tr>
+  </tbody>
+</table>
 
 <p>
 Next, we trained the model on pooled data from all three dialects without providing dialect labels as baseline model.
@@ -251,18 +267,25 @@ The following metrics were used to evaluate the TTS model.
 <p>
   We plan on addressing mentor feedback from the midterm office hour by April 9. We will to continue to fine-tune the F5-TTS model by April 21.
   We will finish metric evaluation by April 25. We will work on creating and printing the poster for the poster presentation by April 28.
-  We will work on filling in and finishing the final report by April 30.
+  We will work on filling in and finishing the final report by May 5.
 </p>
 
 <hr>
 
 <h2 id="conclusion">Conclusion and Future Work</h2>
 <p>
-  How easily are your results able to be reproduced by others?
-  Did your dataset or annotation affect other people's choice of research or development projects to undertake?
-  Does your work have potential harm or risk to our society? What kinds? If so, how can you address them?
-  What limitations does your model have? How can you extend your work for future research?
+  This project is fully open source and replicable, but it requires significant compute resources. Training ran for approximately 14 hours on an NVIDIA RTX PRO 6000 Blackwell GPU. The ViMD dataset used in this project is publicly available on HuggingFace and supports a broad range of speech tasks beyond TTS, including ASR, dialect classification, and speaker modeling. ViMD's dialect-annotated structure may encourage researchers to build more linguistically inclusive speech technologies, though any coverage gaps in the dataset could also shape which dialects future work prioritizes or overlooks.
 </p>
+<p>
+  Voice synthesis technology carries inherent risks, including the potential for generating speech that impersonates real individuals without consent. To mitigate this, this project's system does not support open-ended voice cloning. Synthesized output is constrained to three fixed dialect voices derived from the training data.
+</p>
+<p>
+  The primary limitations of this work are data scale and transcript quality. While ~71 hours of speech were extracted from ViMD, standard TTS systems typically require 50 to 100+ hours per voice to produce intelligible output, and multi-dialect models demand even more. Additionally, ~78% of training transcripts were generated automatically via the Silero VAD and PhoWhisper pipeline. This may have introduced transcription noise that likely degraded text-audio alignment. The dataset also skews heavily male, limiting speaker diversity in synthesized output.
+</p>
+<p>
+  Future work should prioritize completing the quantitative evaluation pipeline by computing per-dialect Word Error Rate (WER) scores and running a dialect classifier on synthesized outputs to formally assess intelligibility and dialect preservation. Additional directions include removing noise from the training audio, improving ASR transcript accuracy, incorporating more Central Vietnamese data to address underrepresentation, and extending the dialect-embedding approach to other low-resource, dialect-rich languages.
+</p>
+
 
 
 <hr>
