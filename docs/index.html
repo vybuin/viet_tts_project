@@ -151,51 +151,39 @@ Annalise Xiao will work on evaluating the model using predefined metrics, updati
 <hr>
 
 <h2 id="approach">Approach</h2>
-
 <p>
-<b>What did you do exactly? How did you solve the problem? Why did you think it would be successful? Is anything new in your approach?</b>
+The F5-TTS architecture was utilized for the multi-dialect Vietnamese TTS system. Speech samples labeled as Northern, Central, and Southern dialects were extracted from the Vietnamese Multi-Dialect (ViMD) dataset, yielding 22,828 total clips (~71 hours of speech). Audio was filtered for valid metadata, converted to mono, resampled to 24 kHz, and constrained to 3 to 17 seconds per clip. 
+Longer recordings up to 30 seconds were segmented using Silero VAD and re-transcribed with PhoWhisper-medium, a Vietnamese ASR model based on OpenAI's Whisper. Clips exceeding 30 seconds were discarded. In total, ~78% of samples were processed through this segmentation pipeline, while the remaining ~22% retained their original ViMD transcripts. 
 </p>
 
-<p>
-The F5-TTS architecture was utilized for the multi-dialect Vietnamese TTS system. 
-Speech samples labeled as Northern, Central, and Southern dialects were extracted from the Vietnamese Multi-Dialect (ViMD) dataset, yielding 22,828 total clips (~71 hours of speech). Audio was filtered for valid metadata, converted to mono, resampled to 24 kHz, and constrained to 3 to 17 seconds per clip. 
-Longer recordings up to 30 seconds were segmented using Silero VAD and re-transcribed with PhoWhisper-medium, a Vietnamese ASR model based on OpenAI's Whisper. Clips exceeding 30 seconds were discarded. 
-In total, ~78% of samples were processed through this segmentation pipeline, while the remaining ~22% retained their original ViMD transcripts. 
-</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Dialect</th>
-      <th>Samples</th>
-      <th>Total Hours</th>
-      <th>Avg Duration (s)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td>Northern</td><td>8,007</td><td>25.0</td><td>11.24</td></tr>
-    <tr><td>Central</td><td>7,615</td><td>23.7</td><td>11.21</td></tr>
-    <tr><td>Southern</td><td>7,206</td><td>22.2</td><td>11.10</td></tr>
-    <tr><td><strong>Total</strong></td><td><strong>22,828</strong></td><td><strong>70.9</strong></td><td><strong>11.18</strong></td></tr>
-  </tbody>
-</table>
+<div class="table-wrapper">
+  <table class="project-table">
+    <thead>
+      <tr>
+        <th>Dialect</th>
+        <th>Samples</th>
+        <th>Total Hours</th>
+        <th>Avg Duration (s)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Northern</td><td>8,007</td><td>25.0</td><td>11.24</td></tr>
+      <tr><td>Central</td><td>7,615</td><td>23.7</td><td>11.21</td></tr>
+      <tr><td>Southern</td><td>7,206</td><td>22.2</td><td>11.10</td></tr>
+      <tr><td><strong>Total</strong></td><td><strong>22,828</strong></td><td><strong>70.9</strong></td><td><strong>11.18</strong></td></tr>
+    </tbody>
+  </table>
+</div>
 
 <p>
 The fine-tuning process was initialized from a pretrained F5-TTS checkpoint trained on ~100,000 hours of Chinese and English audio. The vocabulary was expanded to include Vietnamese-specific characters and tonal diacritics, with new embeddings initialized from scratch.
-Training used a batch size of 30,000 frames, a learning rate of 1e-5, and ran for up to 50 epochs on an NVIDIA RTX PRO 6000 Blackwell GPU. 
-Dialect conditioning at inference time was achieved by swapping reference audio clips representative of each regional dialect, rather than using discrete per-dialect model checkpoints.
+Training used a batch size of 30,000 frames, a learning rate of 1e-5, and ran for up to 50 epochs on an NVIDIA RTX PRO 6000 Blackwell GPU. Dialect conditioning at inference time was achieved by swapping reference audio clips representative of each regional dialect, rather than using discrete per-dialect model checkpoints.
 </p>
 
 <p>
-<b>What problems did you anticipate? What problems did you encounter? Did the very first thing you tried work?</b>
-</p>
-
-<p>
-The primary challenge was compute and data scale. The full ViMD dataset spans over 102 hours across 63 provincial dialects, exceeding what could be processed locally. 
-Low-Rank Adaption (LoRA) was also considered as a lightweight adaptation strategy, but full fine-tuning was ultimately pursued given available GPU memory. 
+The primary challenge was compute and data scale. The full ViMD dataset spans over 102 hours across 63 provincial dialects, exceeding what could be processed locally. Low-Rank Adaption (LoRA) was also considered as a lightweight adaptation strategy, but full fine-tuning was ultimately pursued given available GPU memory. 
 Vocabulary expansion required reinitializing the embedding layer entirely, as the base model had no coverage of Vietnamese tonal characters.
 </p>
-
 
 <hr>
     
@@ -209,6 +197,117 @@ Vocabulary expansion required reinitializing the embedding layer entirely, as th
   The training loss decreased rapidly from ~0.65 to ~0.60 within the first 5,000 steps, then continued declining gradually before plateauing around 0.575 to 0.595 after step 25,000. While training remained stable throughout, the narrow loss range and noisy oscillations suggest the model did not converge to a well-defined minimum — consistent with insufficient data volume at ~71 hours of total speech.
 </p>
 
+<h3>Checkpoint Audio Samples</h3>
+<p>
+  The following samples compare the fixed reference audio with model-generated speech from selected training checkpoints.
+</p>
+
+<div class="table-wrapper">
+  <table class="project-table audio-results-table">
+    <thead>
+      <tr>
+        <th>Checkpoint Step</th>
+        <th>Reference Audio</th>
+        <th>Generated Audio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2,000</td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_2000_ref.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_2000_gen.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+      </tr>
+      <tr>
+        <td>10,000</td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_10000_ref.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_10000_gen.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+      </tr>
+      <tr>
+        <td>20,000</td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_20000_ref.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_20000_gen.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+      </tr>
+      <tr>
+        <td>30,000</td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_30000_ref.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_30000_gen.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+      </tr>
+      <tr>
+        <td>35,000</td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_35000_ref.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_35000_gen.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+      </tr>
+      <tr>
+        <td>40,000</td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_40000_ref.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+        <td>
+          <audio controls preload="metadata">
+            <source src="./files/audio/update_40000_gen.wav" type="audio/wav">
+            Your browser does not support the audio element.
+          </audio>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
 <h3>Gradio Demonstration</h3>
 <p>
 To showcase the capabilities of the fine-tuned model, an interactive web-based demonstration using Gradio was developed. 
@@ -216,13 +315,9 @@ The application loads the fine-tuned checkpoint at startup and exposes a public 
 </p>
 
 <p>
-The interface presents three controls: a dialect selector for Northern, Central, and Southern 
-Vietnamese; a text input field where arbitrary Vietnamese text can be entered or loaded from 
-a file; and a Synthesize button that triggers generation. After synthesis completes, the 
-generated audio is playable directly in the browser alongside a mel spectrogram visualization 
-of the output. Dialect identity is controlled entirely through reference audio selection. 
-Each dialect option maps to a fixed reference clip sourced from a ViMD speaker representative 
-of that region, requiring no explicit dialect label to be passed to the model at inference time.
+The interface presents three controls: a dialect selector for Northern, Central, and Southern Vietnamese; a text input field where arbitrary Vietnamese text can be entered or loaded from a file; and a Synthesize button that triggers generation. After synthesis completes, the 
+generated audio is playable directly in the browser alongside a mel spectrogram visualization of the output. Dialect identity is controlled entirely through reference audio selection. 
+Each dialect option maps to a fixed reference clip sourced from a ViMD speaker representative of that region, requiring no explicit dialect label to be passed to the model at inference time.
 </p>
 
 <video width="1080" controls>
@@ -231,12 +326,28 @@ of that region, requiring no explicit dialect label to be passed to the model at
 
 <hr>
 
-<h2 id="plan">Plan for the Rest of the Semester</h2>
+<h3>Mean Opinion Score (MOS)</h3>
 <p>
-  We plan on addressing mentor feedback from the midterm office hour by April 9. We will to continue to fine-tune the F5-TTS model by April 21.
-  We will finish metric evaluation by April 25. We will work on creating and printing the poster for the poster presentation by April 28.
-  We will work on filling in and finishing the final report by May 5.
+To evaluate perceptual quality, 8 native Vietnamese speakers rated synthesized audio samples generated at six checkpoint steps. Each listener was presented with audio clips of randomized dialects and rated each sample on a standard 1 to 5 scale, 
+where 1 indicates poor quality and 5 indicates excellent, natural-sounding speech. The average scores across all listeners are reported below.
 </p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center;">Checkpoint Step</th>
+      <th style="text-align: center;">Average MOS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td style="text-align: center;">2,000</td><td style="text-align: center;">1.2</td></tr>
+    <tr><td style="text-align: center;">10,000</td><td style="text-align: center;">1.9</td></tr>
+    <tr><td style="text-align: center;">20,000</td><td style="text-align: center;">3.1</td></tr>
+    <tr><td style="text-align: center;">30,000</td><td style="text-align: center;">3.7</td></tr>
+    <tr><td style="text-align: center;">35,000</td><td style="text-align: center;">4.3</td></tr>
+    <tr><td style="text-align: center;">40,000</td><td style="text-align: center;">4.7</td></tr>
+  </tbody>
+</table>
 
 <hr>
 
@@ -244,23 +355,20 @@ of that region, requiring no explicit dialect label to be passed to the model at
 <p>
   This project is fully open source and replicable, but it requires significant compute resources. Training ran for approximately 14 hours on an NVIDIA RTX PRO 6000 Blackwell GPU. The ViMD dataset used in this project is publicly available on HuggingFace and supports a broad range of speech tasks beyond TTS, including ASR, dialect classification, and speaker modeling. ViMD's dialect-annotated structure may encourage researchers to build more linguistically inclusive speech technologies, though any coverage gaps in the dataset could also shape which dialects future work prioritizes or overlooks.
 </p>
+
 <p>
   Voice synthesis technology carries inherent risks, including the potential for generating speech that impersonates real individuals without consent. To mitigate this, this project's system does not support open-ended voice cloning. Synthesized output is constrained to three fixed dialect voices derived from the training data.
 </p>
+
 <p>
   The primary limitations of this work are data scale and transcript quality. While ~71 hours of speech were extracted from ViMD, standard TTS systems typically require 50 to 100+ hours per voice to produce intelligible output, and multi-dialect models demand even more. Additionally, ~78% of training transcripts were generated automatically via the Silero VAD and PhoWhisper pipeline. This may have introduced transcription noise that likely degraded text-audio alignment. The dataset also skews heavily male, limiting speaker diversity in synthesized output.
 </p>
+
 <p>
   Future work should prioritize completing the quantitative evaluation pipeline by computing per-dialect Word Error Rate (WER) scores and running a dialect classifier on synthesized outputs to formally assess intelligibility and dialect preservation. Additional directions include removing noise from the training audio, improving ASR transcript accuracy, incorporating more Central Vietnamese data to address underrepresentation, and extending the dialect-embedding approach to other low-resource, dialect-rich languages.
 </p>
 
-
-
 <hr>
-
-
   </div>
   
-
-
 </body></html>
