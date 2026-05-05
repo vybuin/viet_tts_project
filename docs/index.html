@@ -78,16 +78,7 @@
             >
             <span>Code</span>
             </a>
-          </span>      
-          <span class="link-block">
-            <a
-              href=""
-              target="_blank"
-              class="external-link button is-normal is-rounded is-dark is-outlined"
-            >
-            <span>Model Weights</span>
-            </a>
-          </span>              
+          </span>                   
         </div>
       </div>
 
@@ -95,16 +86,17 @@
     </div>
   </div>
 
-
   <div class="wrapper">
     <hr>
     
     <h2 id="abstract">Abstract</h2>
 
-<p>This project plans on creating a multi-dialect Text-to-Speech (TTS) System for Vietnamese. This will be achieved by utilizing a continuous flow-matching approach on a dialect annotated dataset in order to achieve a higher degree
+<p>
+This project plans on creating a multi-dialect Text-to-Speech (TTS) System for Vietnamese. This will be achieved by utilizing a continuous flow-matching approach on a dialect annotated dataset in order to achieve a higher degree
 of naturalness and intelligibility compared to traditional pipelines. To evaluate the framework’s performance, the project will measure overall speech intelligibility using Word Error
-Rate(WER) and assess dialect accuracy using a dedicated dialect classifier to verify if the synthesized speech matches the target prompt. The expected outcome is a speech synthesis system capable of generating distinct Vietnamese
-dialects using minimal reference audio.</p>
+Rate (WER) and assess dialect accuracy using a dedicated dialect classifier to verify if the synthesized speech matches the target prompt. The expected outcome is a speech synthesis system capable of generating distinct Vietnamese
+dialects using minimal reference audio.
+</p>
 
 <hr>
 
@@ -114,24 +106,18 @@ dialects using minimal reference audio.</p>
 
 <p class="sys-img"><img src="./files/teaser.png" alt="imgname"></p>
 
-
 <h3 id="the-timeline-and-the-highlights">Pipeline Details</h3>
 
-<p>The workflow begins with collecting raw speech data from existing online sources, which are then processed through a data parsing and cleaning stage. During this stage, audio files are standardized (e.g., sampling rate normalization), transcripts are cleaned and aligned, and low-quality or inconsistent samples are filtered out to ensure dataset reliability.
-
+<p>
+The workflow begins with collecting raw speech data from existing online sources, which are then processed through a data parsing and cleaning stage. During this stage, audio files are standardized (e.g., sampling rate normalization), transcripts are cleaned and aligned, and low-quality or inconsistent samples are filtered out to ensure dataset reliability.
 The cleaned dataset is first used to generate outputs from a baseline pre-trained TTS model, providing a reference point for performance comparison. The primary modeling stage involves fine-tuning the F5-TTS model on the curated dataset to better capture dialect-specific phonetic and linguistic variations across Vietnamese regions.
-
 Following training, the model is evaluated using both quantitative and qualitative metrics. Objective measures such as Word Error Rate (WER) are used to assess transcription accuracy, while subjective evaluations such as Mean Opinion Score (MOS) and qualitative error analysis are used to evaluate naturalness and speaker consistency. These evaluation results inform iterative improvements, creating a feedback loop that guides further model refinement.
-
-Finally, the pipeline concludes with documentation and reporting, where experimental results, model performance comparisons, and key insights are consolidated into a comprehensive report. Each stage of the pipeline is collaboratively developed, with responsibilities distributed across data processing, model training, evaluation, and documentation to ensure a modular and reproducible system design.</p>
+Finally, the pipeline concludes with documentation and reporting, where experimental results, model performance comparisons, and key insights are consolidated into a comprehensive report. Each stage of the pipeline is collaboratively developed, with responsibilities distributed across data processing, model training, evaluation, and documentation to ensure a modular and reproducible system design.
+</p>
 
 <hr>
 
 <h2 id="introduction">Introduction / Background / Motivation</h2>
-
-<p>
-<b>What did you try to do? What problem did you try to solve? Articulate your objectives using absolutely no jargon.</b>
-</p>
 <p>
 Despite rapid advancements in Text-to-Speech (TTS) technology, Vietnamese still remains underrepresented as a low-resource language. This disparity is particularly evident when attempting to synthesize diverse regional dialects. 
 The strict lexical tones and significant phonetic shifts between Northern, Central, and Southern Vietnamese present complex acoustic challenges that traditional synthesis pipelines and English-centric models struggle to resolve without dedicated, dialect-aware fine tuning.
@@ -139,21 +125,16 @@ To address this gap, this project proposes a multi-dialect Vietnamese TTS system
 </p>
 
 <p>
-<b>How is it done today, and what are the limits of current practice?</b>
-</p>
-<p>
 In recent years, TTS systems have rapidly improved in their naturalness and intelligibility with paradigms like continuous flow matching and audio language models.  However, most of these models are based on popular, high resource languages such as English and Mandarin.
 Previous work has focused on dialect identification and speech recognition for Vietnamese and most existing Vietnamese speech datasets were designed for Automatic Speech Recognition (ASR) and Dialect Identification (DI).
 However, less attention has been given to generating various dialects with TTS models. For this project, we investigated whether a TTS model trained on northern, central, and southern Vietnamese dialects can accurately generate dialect-specific acoustic characteristics. 
 <p>
 
 <p>
-<b>Who cares? If you are successful, what difference will it make?</b>
-</p>
-<p>
 There has been little investigation into how multi-dialect training affects TTS systems. It is unclear whether a TTS model trained on multiple Vietnamese dialects can preserve dialect-specific pronunciation patterns or whether the system tends to produce a more standardized or dominant dialect. 
 This gap highlights the need to examine dialect preservation in generative TTS models. This also raises the question: "When a TTS model is trained on speech data from multiple Vietnamese dialects, can it preserve dialect-specific characteristics, or does it converge toward a dominant dialect during generation?"
 </p>
+
 <p>
 If successful, this work could have meaningful implications beyond Vietnamese. Many languages beyond Vietnamese are low-resource and dialect-rich, but remain underserved by modern speech technology. A dialect-aware TTS system for Vietnamese could serve as a blueprint for extending similar approaches to other low-resource languages.
 More immediate benefits include improving accessibility in applications like screen readers, navigation tools, and voice assistants for Vietnamese speakers from Central and Southern regions who are underrepresented in existing speech tools.
@@ -162,7 +143,6 @@ More immediate benefits include improving accessibility in applications like scr
 <hr>
 
 <h2 id="task_def">Task Definition and Description</h2>
-
 <p>
 Vy Bui-Nguyen will work on parsing and cleaning data. Quenton Ni will work on fine tuning the F5-TTS model for the task. 
 Annalise Xiao will work on evaluating the model using predefined metrics, updating the webpage, and the poster presentation. Cheston Opsasnick will work on documenting progress and generating the final report.
@@ -180,7 +160,7 @@ Annalise Xiao will work on evaluating the model using predefined metrics, updati
 The F5-TTS architecture was utilized for the multi-dialect Vietnamese TTS system. 
 Speech samples labeled as Northern, Central, and Southern dialects were extracted from the Vietnamese Multi-Dialect (ViMD) dataset, yielding 22,828 total clips (~71 hours of speech). Audio was filtered for valid metadata, converted to mono, resampled to 24 kHz, and constrained to 3 to 17 seconds per clip. 
 Longer recordings up to 30 seconds were segmented using Silero VAD and re-transcribed with PhoWhisper-medium, a Vietnamese ASR model based on OpenAI's Whisper. Clips exceeding 30 seconds were discarded. 
-In total, ~78% of samples were processed through this segmentation pipeline, while the remaining ~22% retained their original ViMD transcripts. The final dataset was split 80/10/10 into training, validation, and test sets, with all available utterances per speaker retained to preserve phonetic and prosodic variability.
+In total, ~78% of samples were processed through this segmentation pipeline, while the remaining ~22% retained their original ViMD transcripts. 
 </p>
 
 <table>
@@ -201,9 +181,9 @@ In total, ~78% of samples were processed through this segmentation pipeline, whi
 </table>
 
 <p>
-Next, we trained the model on pooled data from all three dialects without providing dialect labels as baseline model.
-Then, we finetuned the model to include a learned dialect embedding corresponding to the three dialect classes.
-Lastly, we tested the model’s accuracy on each dialect. We compared intelligibility and dialect preservation for the model.
+The fine-tuning process was initialized from a pretrained F5-TTS checkpoint trained on ~100,000 hours of Chinese and English audio. The vocabulary was expanded to include Vietnamese-specific characters and tonal diacritics, with new embeddings initialized from scratch.
+Training used a batch size of 30,000 frames, a learning rate of 1e-5, and ran for up to 50 epochs on an NVIDIA RTX PRO 6000 Blackwell GPU. 
+Dialect conditioning at inference time was achieved by swapping reference audio clips representative of each regional dialect, rather than using discrete per-dialect model checkpoints.
 </p>
 
 <p>
@@ -211,17 +191,15 @@ Lastly, we tested the model’s accuracy on each dialect. We compared intelligib
 </p>
 
 <p>
-One major challenge we anticipated was the scale of the ViMD dataset, which contains over 102 hours of speech data across 63 provincial dialects. We were concerned that processing and training on the full dataset would exceed the compute available on our local devices.
-We considered using a subset of the data, focusing on samples from the three main regional dialects (Northern, Central, and Southern) to make training more feasible while still preserving dialect variation. 
-We also considered utilizing Low-Rank Adaption (LoRA) to adapt the F5-TTS model to new tasks by freezing the original weights and injecting small, trainable low-rank matrices.
+The primary challenge was compute and data scale. The full ViMD dataset spans over 102 hours across 63 provincial dialects, exceeding what could be processed locally. 
+Low-Rank Adaption (LoRA) was also considered as a lightweight adaptation strategy, but full fine-tuning was ultimately pursued given available GPU memory. 
+Vocabulary expansion required reinitializing the embedding layer entirely, as the base model had no coverage of Vietnamese tonal characters.
 </p>
+
 
 <hr>
     
 <h2 id="results">Results</h2>
-<p>
-<b>How did you measure success? What experiments were used? What were the results, both quantitative and qualitative? Did you succeed? Did you fail? Why?</b>
-</p>
 
 <h3>Loss Graph</h3>
 <div style="text-align: center;">
@@ -233,8 +211,18 @@ We also considered utilizing Low-Rank Adaption (LoRA) to adapt the F5-TTS model 
 
 <h3>Gradio Demonstration</h3>
 <p>
-A Gradio-based demonstration interface was developed to showcase the fine-tuned F5-TTS model. 
-The interface presented three options corresponding to the Northern, Central, and Southern Vietnamese dialects. Each option uses a fixed dialect-representative reference audio clip to condition the acoustic output, allowing users to input Vietnamese text and receive synthesized speech in the target dialect. 
+To showcase the capabilities of the fine-tuned model, an interactive web-based demonstration using Gradio was developed. 
+The application loads the fine-tuned checkpoint at startup and exposes a public URL, allowing access without local installation or GPU hardware.
+</p>
+
+<p>
+The interface presents three controls: a dialect selector for Northern, Central, and Southern 
+Vietnamese; a text input field where arbitrary Vietnamese text can be entered or loaded from 
+a file; and a Synthesize button that triggers generation. After synthesis completes, the 
+generated audio is playable directly in the browser alongside a mel spectrogram visualization 
+of the output. Dialect identity is controlled entirely through reference audio selection. 
+Each dialect option maps to a fixed reference clip sourced from a ViMD speaker representative 
+of that region, requiring no explicit dialect label to be passed to the model at inference time.
 </p>
 
 <video width="1080" controls>
