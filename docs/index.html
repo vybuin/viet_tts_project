@@ -325,6 +325,32 @@ Each dialect option maps to a fixed reference clip sourced from a ViMD speaker r
 </video>
 
 <hr>
+
+<h3>Mean Opinion Score (MOS)</h3>
+<p>
+To evaluate perceptual quality, 8 native Vietnamese speakers rated synthesized audio samples generated at six checkpoint steps. Each listener was presented with audio clips of randomized dialects and rated each sample on a standard 1 to 5 scale, 
+where 1 indicates poor quality and 5 indicates excellent, natural-sounding speech. The average scores across all listeners are reported below.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center;">Checkpoint Step</th>
+      <th style="text-align: center;">Average MOS</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td style="text-align: center;">2,000</td><td style="text-align: center;">1.2</td></tr>
+    <tr><td style="text-align: center;">10,000</td><td style="text-align: center;">1.9</td></tr>
+    <tr><td style="text-align: center;">20,000</td><td style="text-align: center;">3.1</td></tr>
+    <tr><td style="text-align: center;">30,000</td><td style="text-align: center;">3.7</td></tr>
+    <tr><td style="text-align: center;">35,000</td><td style="text-align: center;">4.3</td></tr>
+    <tr><td style="text-align: center;">40,000</td><td style="text-align: center;">4.7</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
 <h2 id="conclusion">Conclusion and Future Work</h2>
 <p>
   This project is fully open source and replicable, but it requires significant compute resources. Training ran for approximately 14 hours on an NVIDIA RTX PRO 6000 Blackwell GPU. The ViMD dataset used in this project is publicly available on HuggingFace and supports a broad range of speech tasks beyond TTS, including ASR, dialect classification, and speaker modeling. ViMD's dialect-annotated structure may encourage researchers to build more linguistically inclusive speech technologies, though any coverage gaps in the dataset could also shape which dialects future work prioritizes or overlooks.
