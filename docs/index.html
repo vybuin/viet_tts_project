@@ -203,64 +203,6 @@ Vocabulary expansion required reinitializing the embedding layer entirely, as th
     
 <h2 id="results">Results</h2>
 
-<h3>Audio Samples Across Training Steps</h3>
-<p>
-  The table below compares generated and reference audio at checkpoint steps throughout 
-  training, illustrating how synthesis quality evolves over the course of training.
-</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Step</th>
-      <th>Generated Audio</th>
-      <th>Reference Audio</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>2,000</td>
-      <td><audio controls><source src="../samples/update_2000_gen.wav" type="audio/wav"></audio></td>
-      <td><audio controls><source src="../samples/update_2000_ref.wav" type="audio/wav"></audio></td>
-    </tr>
-    <tr>
-      <td>10,000</td>
-      <td><audio controls><source src="../samples/update_10000_gen.wav" type="audio/wav"></audio></td>
-      <td><audio controls><source src="../samples/update_10000_ref.wav" type="audio/wav"></audio></td>
-    </tr>
-    <tr>
-      <td>15,000</td>
-      <td><audio controls><source src="../samples/update_15000_gen.wav" type="audio/wav"></audio></td>
-      <td><audio controls><source src="../samples/update_15000_ref.wav" type="audio/wav"></audio></td>
-    </tr>
-    <tr>
-      <td>20,000</td>
-      <td><audio controls><source src="../samples/update_20000_gen.wav" type="audio/wav"></audio></td>
-      <td><audio controls><source src="../samples/update_20000_ref.wav" type="audio/wav"></audio></td>
-    </tr>
-    <tr>
-      <td>25,000</td>
-      <td><audio controls><source src="../samples/update_25000_gen.wav" type="audio/wav"></audio></td>
-      <td><audio controls><source src="../samples/update_25000_ref.wav" type="audio/wav"></audio></td>
-    </tr>
-    <tr>
-      <td>30,000</td>
-      <td><audio controls><source src="../samples/update_30000_gen.wav" type="audio/wav"></audio></td>
-      <td><audio controls><source src="../samples/update_30000_ref.wav" type="audio/wav"></audio></td>
-    </tr>
-    <tr>
-      <td>35,000</td>
-      <td><audio controls><source src="../samples/update_35000_gen.wav" type="audio/wav"></audio></td>
-      <td><audio controls><source src="../samples/update_35000_ref.wav" type="audio/wav"></audio></td>
-    </tr>
-    <tr>
-      <td>40,000</td>
-      <td><audio controls><source src="../samples/update_40000_gen.wav" type="audio/wav"></audio></td>
-      <td><audio controls><source src="../samples/update_40000_ref.wav" type="audio/wav"></audio></td>
-    </tr>
-  </tbody>
-</table>
-
 <hr>
 
 <h3>Loss Graph</h3>
@@ -271,9 +213,7 @@ Vocabulary expansion required reinitializing the embedding layer entirely, as th
   The training loss decreased rapidly from ~0.65 to ~0.60 within the first 5,000 steps, then continued declining gradually before plateauing around 0.575 to 0.595 after step 25,000. While training remained stable throughout, the narrow loss range and noisy oscillations suggest the model did not converge to a well-defined minimum — consistent with insufficient data volume at ~71 hours of total speech.
 </p>
 
-<<<<<<< HEAD
 <hr>
-=======
 <h3>Checkpoint Audio Samples</h3>
 <p>
   The following samples compare the fixed reference audio with model-generated speech from selected training checkpoints.
@@ -382,7 +322,6 @@ Vocabulary expansion required reinitializing the embedding layer entirely, as th
     </tbody>
   </table>
 </div>
->>>>>>> 72622f8 (Added table audio reference)
 
 <h3>Gradio Demonstration</h3>
 <p>
