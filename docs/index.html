@@ -189,6 +189,14 @@ Vocabulary expansion required reinitializing the embedding layer entirely, as th
     
 <h2 id="results">Results</h2>
 
+<h3>Loss Graph</h3>
+<div style="text-align: center;">
+  <img style="height: 400px;" alt="Training loss curve over 40,000 steps" src="./files/loss-graph.png">
+</div>
+<p>
+  The training loss decreased rapidly from ~0.65 to ~0.60 within the first 5,000 steps, then continued declining gradually before plateauing around 0.575 to 0.595 after step 25,000. While training remained stable throughout, the narrow loss range and noisy oscillations suggest the model did not converge to a well-defined minimum — consistent with insufficient data volume at ~71 hours of total speech.
+</p>
+
 <h3>Checkpoint Audio Samples</h3>
 <p>
   The following samples compare the fixed reference audio with model-generated speech from selected training checkpoints.
@@ -317,17 +325,6 @@ Each dialect option maps to a fixed reference clip sourced from a ViMD speaker r
 </video>
 
 <hr>
-
-<h3>Loss Graph</h3>
-<div style="text-align: center;">
-  <img style="height: 400px;" alt="Training loss curve over 40,000 steps" src="./files/loss-graph.png">
-</div>
-<p>
-  The training loss decreased rapidly from ~0.65 to ~0.60 within the first 5,000 steps, then continued declining gradually before plateauing around 0.575 to 0.595 after step 25,000. While training remained stable throughout, the narrow loss range and noisy oscillations suggest the model did not converge to a well-defined minimum — consistent with insufficient data volume at ~71 hours of total speech.
-</p>
-
-<hr>
-
 <h2 id="conclusion">Conclusion and Future Work</h2>
 <p>
   This project is fully open source and replicable, but it requires significant compute resources. Training ran for approximately 14 hours on an NVIDIA RTX PRO 6000 Blackwell GPU. The ViMD dataset used in this project is publicly available on HuggingFace and supports a broad range of speech tasks beyond TTS, including ASR, dialect classification, and speaker modeling. ViMD's dialect-annotated structure may encourage researchers to build more linguistically inclusive speech technologies, though any coverage gaps in the dataset could also shape which dialects future work prioritizes or overlooks.
