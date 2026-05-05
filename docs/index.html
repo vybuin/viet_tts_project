@@ -223,43 +223,23 @@ We also considered utilizing Low-Rank Adaption (LoRA) to adapt the F5-TTS model 
 <b>How did you measure success? What experiments were used? What were the results, both quantitative and qualitative? Did you succeed? Did you fail? Why?</b>
 </p>
 
+<h3>Loss Graph</h3>
+<div style="text-align: center;">
+  <img style="height: 400px;" alt="Training loss curve over 40,000 steps" src="./files/loss-graph.png">
+</div>
 <p>
-The following metrics were used to evaluate the TTS model.
-<ul>
-  <li>Word Error Rate (WER): used to evaluate the accuracy of speech recognition</li>
-</ul>
+  The training loss decreased rapidly from ~0.65 to ~0.60 within the first 5,000 steps, then continued declining gradually before plateauing around 0.575 to 0.595 after step 25,000. While training remained stable throughout, the narrow loss range and noisy oscillations suggest the model did not converge to a well-defined minimum — consistent with insufficient data volume at ~71 hours of total speech.
 </p>
 
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: center"><strong>Experiment</strong></th>
-      <th style="text-align: center">1</th>
-      <th style="text-align: center">2</th>
-      <th style="text-align: center">3</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"><strong>Sentence</strong></td>
-      <td style="text-align: center">Example 1</td>
-      <td style="text-align: center">Example 2</td>
-      <td style="text-align: center">Example 3</td>
-    </tr>
-    <tr>
-      <td style="text-align: center"><strong>Errors</strong></td>
-      <td style="text-align: center">error A, error B, error C</td>
-      <td style="text-align: center">error C</td>
-      <td style="text-align: center">error B</td>
-    </tr>
-  </tbody>
-  <caption>Table 1. This is Table 1's caption</caption>
-</table>
-<br>
-<div style="text-align: center;">
-<img style="height: 300px;" alt="" src="./files/results.png">
-</div>
-<br><br>
+<h3>Gradio Demonstration</h3>
+<p>
+A Gradio-based demonstration interface was developed to showcase the fine-tuned F5-TTS model. 
+The interface presented three options corresponding to the Northern, Central, and Southern Vietnamese dialects. Each option uses a fixed dialect-representative reference audio clip to condition the acoustic output, allowing users to input Vietnamese text and receive synthesized speech in the target dialect. 
+</p>
+
+<video width="1080" controls>
+  <source src="files/gradio-demo.mp4" type="video/mp4">
+</video>
 
 <hr>
 
