@@ -75,6 +75,19 @@ table th { background-color: #f0f0f0; border: 1px solid #dedede; border-bottom-c
 
 table td { border: 1px solid #e8e8e8; }
 
+.table-wrapper { overflow-x: auto; margin-bottom: 30px; }
+
+.table-wrapper table { margin-bottom: 0; }
+
+.project-table { table-layout: fixed; }
+
+.audio-results-table { min-width: 700px; }
+
+.audio-results-table th:first-child,
+.audio-results-table td:first-child { width: 150px; white-space: nowrap; }
+
+.audio-results-table audio { width: 100%; min-width: 220px; }
+
 /** Site header */
 .site-header { border-top: 5px solid #424242; border-bottom: 1px solid #e8e8e8; min-height: 55.95px; position: relative; }
 
