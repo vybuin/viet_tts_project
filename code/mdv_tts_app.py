@@ -4,11 +4,8 @@
 # ──────────────────────────────────────────────────────────────────────
 # A Gradio interface for generating Vietnamese speech in three regional
 # dialects (North / Central / South) using a fine-tuned F5-TTS model.
-# No voice-cloning UI is exposed — reference audio is selected
-# automatically based on the chosen dialect.
 #
-# Model loading uses the F5TTS API class (same as inference_f5.ipynb).
-#
+# Model loading uses the F5TTS API class
 # Usage (Colab):
 #   1. Mount Google Drive & install F5-TTS  (see run_mdv_tts_demo.ipynb)
 #   2. %run /content/drive/MyDrive/mdv-tts/code/mdv_tts_app.py
