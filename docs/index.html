@@ -92,10 +92,9 @@
     <h2 id="abstract">Abstract</h2>
 
 <p>
-This project plans on creating a multi-dialect Text-to-Speech (TTS) System for Vietnamese. This will be achieved by utilizing a continuous flow-matching approach on a dialect annotated dataset in order to achieve a higher degree
-of naturalness and intelligibility compared to traditional pipelines. To evaluate the framework’s performance, the project will measure overall speech intelligibility using Word Error
-Rate (WER) and assess dialect accuracy using a dedicated dialect classifier to verify if the synthesized speech matches the target prompt. The expected outcome is a speech synthesis system capable of generating distinct Vietnamese
-dialects using minimal reference audio.
+This project proposes a multi-dialect Text-to-Speech (TTS) system for Vietnamese. The system is built using a continuous flow-matching approach and trained on a dialect-annotated dataset to improve speech naturalness and intelligibility. To support multi-dialect learning, audio data was processed and segmented into high-quality clips with aligned transcripts across Northern, Central, and Southern Vietnamese.
+
+The model’s performance is evaluated using Word Error Rate (WER) as a measure of speech intelligibility. While explicit dialect classification was not implemented, the model is trained on dialect-diverse data with the goal of capturing region-specific phonetic characteristics. The expected outcome is a speech synthesis system capable of generating intelligible Vietnamese speech with emerging dialect distinctions using minimal reference audio.
 </p>
 
 <hr>
