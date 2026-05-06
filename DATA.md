@@ -1,114 +1,192 @@
 # Data Extraction Pipeline
 
+This document describes the current ViMD data extraction workflow used for the multi-dialect Vietnamese TTS project.
+
+The extraction pipeline lives in:
+
+```text
+code/extract_data.ipynb
+```
+
+The source dataset is the Vietnamese Multi-Dialect dataset on Hugging Face:
+
+```text
+https://huggingface.co/datasets/nguyendv02/ViMD_Dataset
+```
+
 ## Overview
-We build a **balanced, efficient subset** of the ViMD Dataset for training a multi-dialect Vietnamese TTS model.
 
-Instead of downloading the full dataset (~100+ hours), we use a **streaming pipeline** to extract only the data we need. This keeps the workflow lightweight, reproducible, and easy to scale.
+The goal is to build a usable Vietnamese TTS training subset from ViMD without downloading and manually processing the entire dataset. The notebook streams ViMD from Hugging Face, keeps clips from the three target regions, normalizes audio, and writes a manifest that can be used by the F5-TTS fine-tuning notebook.
 
+The current extraction setup targets:
 
-## Design Goals
-- Balance dialects evenly across:
-  - North
-  - Central
-  - South  
-- Preserve train/valid/test splits
-- Limit speaker dominance (cap utterances per speaker)
-- Avoid unnecessary storage usage
-- Enable easy scaling (debug → baseline → larger experiments)
+- `North`
+- `Central`
+- `South`
 
+Audio is saved as `.wav` and resampled to 24 kHz for F5-TTS.
+
+## Recommended Runtime
+
+Run `code/extract_data.ipynb` in Google Colab or another high-RAM environment. The notebook can stream a large amount of audio, run VAD, and optionally run PhoWhisper on long clips, so a typical laptop may run out of memory or take a long time.
+
+If using Colab, the notebook writes to both:
+
+```text
+/content/viet_tts_project_data/
+/content/drive/MyDrive/viet_tts_project_data/
+```
+
+The local Colab path is used for faster processing. The Google Drive path is used to preserve outputs after the Colab session ends.
+
+## Current Notebook Configuration
+
+The main configuration cell in `extract_data.ipynb` controls the extraction. Important settings include:
+
+```text
+DATASET_NAME = "nguyendv02/ViMD_Dataset"
+HOURS_PER_REGION = 25
+MIN_DURATION = 3.0
+MAX_DURATION = 17.0
+TARGET_SAMPLE_RATE = 24000
+REGIONS = ["North", "Central", "South"]
+```
+
+The notebook currently uses:
+
+```text
+ASR_BACKEND = "phowhisper"
+PHOWHISPER_MODEL = "vinai/PhoWhisper-base"
+SEGMENT_LONG_CLIPS = True
+MAX_SOURCE_DURATION = 30.0
+```
+
+Short clips within the duration range are kept directly. Longer clips can be segmented with Silero VAD and re-transcribed with PhoWhisper so that usable portions can still be included.
 
 ## Extraction Strategy
 
-### Streaming (No Full Download)
-We stream the dataset directly from Hugging Face instead of downloading all audio files locally.
+### 1. Stream ViMD
 
-Audio decoding is handled manually using `soundfile` rather than Hugging Face's built-in audio decoding.
+The notebook streams the dataset directly from Hugging Face instead of downloading the full dataset first. This keeps the workflow more practical for Colab and avoids storing the full 100+ hour dataset locally.
 
-**Why:**
-- avoids large storage usage  
-- avoids dependency issues (e.g., torchcodec, FFmpeg)  
-- faster iteration  
-- allows flexible subsetting  
+### 2. Filter Examples
 
+Rows are filtered to keep usable examples only:
 
-### Balanced by Region and Split
-We enforce **equal target duration per region within each split**.
+- valid target region: `North`, `Central`, or `South`
+- non-empty transcript
+- readable audio
+- minimum duration of 3 seconds
+- standard short-clip maximum duration of 17 seconds
+- optional source maximum duration of 30 seconds for long-clip segmentation
 
-Example (3 hours per region):
-- Train: 2.4h per region  
-- Valid: 0.3h per region  
-- Test: 0.3h per region  
+Vietnamese diacritics are preserved in the transcript text.
 
-This ensures:
-- no dialect dominates training  
-- fair comparison across regions  
+### 3. Normalize Audio
 
+Audio is converted to mono when needed and resampled to:
 
-### Data Filtering
-We apply lightweight filtering:
-- remove empty transcripts  
-- filter duration (default: 2–15 seconds)  
-- keep only valid regions (North, Central, South)  
+```text
+24000 Hz
+```
 
-We intentionally **preserve Vietnamese text (including diacritics)**.
+This matches the expected sample rate for F5-TTS training and inference.
 
+### 4. Handle Long Clips
 
-### Speaker Balancing
-We cap the number of utterances per speaker to:
-- reduce overfitting to specific voices  
-- increase speaker diversity  
+For clips longer than the direct training range, the notebook can:
 
+- detect speech intervals using Silero VAD
+- split the source audio into shorter segments
+- transcribe those segments with PhoWhisper
+- save aligned segment audio and generated transcripts
+
+This step helps recover usable training material from longer ViMD recordings while keeping each training example within a TTS-friendly duration.
 
 ## Output Format
-### Audio
-Audio files are saved using the following structure:
+
+The extracted dataset is written under an output directory such as:
+
+```text
+data/vimd_subset/
 ```
-data/vimd_subset/audio/
+
+or, in Colab:
+
+```text
+/content/viet_tts_project_data/vimd_subset_15s_2/
+```
+
+The audio directory follows this structure:
+
+```text
+audio/
 ├── train/
-│ ├── North/
-│ ├── Central/
-│ └── South/
+│   ├── North/
+│   ├── Central/
+│   └── South/
 ├── valid/
-│ ├── North/
-│ ├── Central/
-│ └── South/
+│   ├── North/
+│   ├── Central/
+│   └── South/
 └── test/
-├── North/
-├── Central/
-└── South/
+    ├── North/
+    ├── Central/
+    └── South/
 ```
 
-### Manifest
-Saved as:
-- `manifest.csv`
-- `manifest.jsonl`
+Depending on the notebook configuration, some runs may only extract the `train` split.
 
-Each row contains:
+## Manifests
+
+Manifests are saved under:
+
+```text
+manifests/
+```
+
+The main files are:
+
+```text
+manifest.csv
+manifest.jsonl
+manifest_original.csv
+extract_checkpoint.json
+```
+
+The primary manifest columns are:
+
 - `audio_path`
 - `text`
 - `duration_sec`
 - `region`
-- `speaker_id`
 - `split`
 - `filename`
 
-## Usage
+Some extraction runs may include extra metadata columns for segmented clips, such as original duration, segment index, or ASR source.
 
-### Install dependencies
-```bash
-pip install requirements.txt
-python code/extract_data.py --hours_per_region 1
+## Resume and Checkpoints
+
+The notebook writes extraction progress to:
+
+```text
+manifests/extract_checkpoint.json
 ```
 
-### Resume from a checkpoint
-Extraction checkpoints are written automatically to:
-```
-data/vimd_subset/manifests/extract_checkpoint.json
+To resume an interrupted run, set this in the notebook configuration cell:
+
+```text
+RESUME_FROM_CHECKPOINT = True
 ```
 
-If the stream stops before finishing, rerun the same command with `--resume`:
-```bash
-python code/extract_data.py --hours_per_region 1 --resume
+The checkpoint stores accepted rows, accepted duration totals, segment candidates, and the last streamed position for each split. Resume only works reliably when the extraction settings match the settings used to create the checkpoint.
+
+## How to Use the Extracted Data
+
+After extraction, use the generated manifest and audio folders in:
+
+```text
+code/fine_tune_f5.ipynb
 ```
 
-The checkpoint stores accepted rows, accepted duration totals, and the last streamed row index for each split. Resume requires the same extraction arguments so the manifest stays consistent.
+That notebook prepares the data for F5-TTS fine-tuning. If running in Colab, make sure the fine-tuning notebook points to the same Drive output directory created by the extraction notebook.
